@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<product productid="idpay_api" active="1">
+    <title>zarinpal ZarinGate Payment Module</title>
+    <description>This product add a idpay module for the payment APIs</description>
+    <version>4.X.X</version>
+    <url><![CDATA[http://www.nixweb.ir]]></url>
+    <versioncheckurl><![CDATA[http://www.nixweb.ir]]></versioncheckurl>
+    <dependencies>
+    </dependencies>
+
+    <codes>
+        <code version="1.0">
+            <installcode><![CDATA[
+function toggle_subs()
+{
+	global $vbulletin;
+
+	$setting = 0;
+	if ($check = $vbulletin->db->query_first("
+		SELECT paymentapiid
+		FROM " . TABLE_PREFIX . "paymentapi
+		WHERE active = 1
+	"))
+	{
+		if ($check = $vbulletin->db->query_first("
+			SELECT subscriptionid
+			FROM " . TABLE_PREFIX . "subscription
+			WHERE active = 1
+		"))
+		{
+			$setting = 1;
+		}
+	}
+
+	if ($setting != $vbulletin->options['subscriptionmethods'])
+	{
+		// update $vboptions
+		$vbulletin->db->query_write("
+			UPDATE " . TABLE_PREFIX . "setting
+			SET value = '$setting'
+			WHERE varname = 'subscriptionmethods'
+		");
+		build_options();
+	}
+}
+
+$db->hide_errors();
+$idpaysettings = array(
+	"api_key"      => array("type" => "text", "value" => "", "validate" => "string"),
+	"currency_rate"      => array("type" => "text", "value" => "", "validate" => "string"),
+	"sandbox"      => array("type" => "yesno", "value" => "0", "validate" => "yesno"),
+);
+
+$api = array(
+	"title" => "idpay",
+	"active" => 1,
+	"classname" => "idpay",
+	"currency" => "usd",
+	"recurring" => 0,
+	"settings" => serialize($idpaysettings),
+);
+
+$db->query_write(fetch_query_sql($api, 'paymentapi'));
+toggle_subs();
+$db->show_errors();]]></installcode>
+            <uninstallcode><![CDATA[
+function toggle_subs()
+{
+	global $vbulletin;
+
+
+	$setting = 0;
+	if ($check = $vbulletin->db->query_first("
+		SELECT paymentapiid
+		FROM " . TABLE_PREFIX . "paymentapi
+		WHERE active = 1
+	"))
+	{
+		if ($check = $vbulletin->db->query_first("
+			SELECT subscriptionid
+			FROM " . TABLE_PREFIX . "subscription
+			WHERE active = 1
+		"))
+		{
+			$setting = 1;
+		}
+	}
+
+	if ($setting != $vbulletin->options['subscriptionmethods'])
+	{
+		// update $vboptions
+		$vbulletin->db->query_write("
+			UPDATE " . TABLE_PREFIX . "setting
+			SET value = '$setting'
+			WHERE varname = 'subscriptionmethods'
+		");
+		build_options();
+	}
+}
+
+$db->hide_errors();
+$db->query_write("DELETE FROM " . TABLE_PREFIX . "paymentapi WHERE classname = 'idpay'");
+toggle_subs();
+$db->show_errors();]]></uninstallcode>
+        </code>
+    </codes>
+    <templates>
+    </templates>
+    <plugins>
+    </plugins>
+    <phrases>
+        <phrasetype name="Subscription Tools" fieldname="subscription">
+            <phrase name="idpay" date="1294078080" username="admin" version="1.0"><![CDATA[idpay]]></phrase>
+            <phrase name="idpay_order_instructions" date="1294078080" username="admin" version="1.00">
+                <![CDATA[To pay for your subscription using <a href="http://www.idpay.com" target="_blank">idpay</a> click the button below and follow the onscreen instructions.]]></phrase>
+            <phrase name="setting_idpay_api_key_title" date="1294078080" username="admin" version="1.00">
+                <![CDATA[idpay Merchant ID]]></phrase>
+            <phrase name="setting_idpay_currency_rate_title" date="1294078080" username="admin" version="1.00">
+                <![CDATA[Currency exchange rate]]></phrase>
+            <phrase name="setting_idpay_sandbox_title" date="1294078080" username="admin" version="1.00">
+                <![CDATA[Sandbox]]></phrase>
+        </phrasetype>
+    </phrases>
+    <options>
+    </options>
+    <helptopics>
+    </helptopics>
+    <cronentries>
+    </cronentries>
+    <faqentries>
+    </faqentries>
+</product>
