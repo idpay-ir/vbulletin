@@ -48,6 +48,7 @@ class vB_PaidSubscriptionMethod_idpay extends vB_PaidSubscriptionMethod
             'phone' => '',
             'desc' => $desc,
             'callback' => $callback,
+            'name' => $userinfo['username'],
         );
 
         $ch = curl_init('https://api.idpay.ir/v1.1/payment');
