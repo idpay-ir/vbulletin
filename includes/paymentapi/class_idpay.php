@@ -14,70 +14,6 @@ class vB_PaidSubscriptionMethod_idpay extends vB_PaidSubscriptionMethod
     var $display_feedback = true;
 
     /**
-     * @param $hash
-     * @param $cost
-     * @param $currency
-     * @param $subinfo
-     * @param $userinfo
-     * @param $timeinfo
-     * @return array|bool|string
-     */
-    function generate_form_html($hash, $cost, $currency, $subinfo, $userinfo, $timeinfo)
-    {
-        global $vbphrase, $vbulletin, $show;
-
-        $response['state'] = false;
-        $response['result'] = "";
-
-        $api_key = $this->settings['api_key'];
-        $sandbox = $this->settings['sandbox'] == 1 ? 'true' : 'false';
-
-        $amount = floor($cost * $this->settings['currency_rate']);
-
-        $desc = "خرید اشتراک توسط" . $userinfo['username'];
-        $callback = vB::$vbulletin->options['bburl'] . '/payment_gateway.php?method=idpay' ;
-
-        if (empty($amount)) {
-            echo 'واحد پول انتخاب شده پشتیبانی نمی شود.';
-            return false;
-        }
-
-        $data = array(
-            'order_id' => $hash,
-            'amount' => $amount,
-            'phone' => '',
-            'desc' => $desc,
-            'callback' => $callback,
-            'name' => $userinfo['username'],
-        );
-
-        $ch = curl_init('https://api.idpay.ir/v1.1/payment');
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/json',
-            'X-API-KEY:' . $api_key,
-            'X-SANDBOX:' . $sandbox,
-        ));
-
-        $result = curl_exec($ch);
-        $result = json_decode($result);
-        $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($http_status != 201 || empty($result) || empty($result->id) || empty($result->link)) {
-            echo 'ERR: '. sprintf('خطا هنگام ایجاد تراکنش. کد خطا: %s', $http_status);
-
-            return false;
-        } else {
-            $form['action'] = $result->link;
-            $form['method'] = 'GET';
-        }
-
-        return $form;
-    }
-
-    /**
      * @return bool
      */
     function verify_payment()
@@ -189,6 +125,70 @@ class vB_PaidSubscriptionMethod_idpay extends vB_PaidSubscriptionMethod
 
             return false;
         }
+    }
+
+    /**
+     * @param $hash
+     * @param $cost
+     * @param $currency
+     * @param $subinfo
+     * @param $userinfo
+     * @param $timeinfo
+     * @return array|bool|string
+     */
+    function generate_form_html($hash, $cost, $currency, $subinfo, $userinfo, $timeinfo)
+    {
+        global $vbphrase, $vbulletin, $show;
+
+        $response['state'] = false;
+        $response['result'] = "";
+
+        $api_key = $this->settings['api_key'];
+        $sandbox = $this->settings['sandbox'] == 1 ? 'true' : 'false';
+
+        $amount = floor($cost * $this->settings['currency_rate']);
+
+        $desc = "خرید اشتراک توسط" . $userinfo['username'];
+        $callback = vB::$vbulletin->options['bburl'] . '/payment_gateway.php?method=idpay' ;
+
+        if (empty($amount)) {
+            echo 'واحد پول انتخاب شده پشتیبانی نمی شود.';
+            return false;
+        }
+
+        $data = array(
+            'order_id' => $hash,
+            'amount' => $amount,
+            'phone' => '',
+            'desc' => $desc,
+            'callback' => $callback,
+            'name' => $userinfo['username'],
+        );
+
+        $ch = curl_init('https://api.idpay.ir/v1.1/payment');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json',
+            'X-API-KEY:' . $api_key,
+            'X-SANDBOX:' . $sandbox,
+        ));
+
+        $result = curl_exec($ch);
+        $result = json_decode($result);
+        $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($http_status != 201 || empty($result) || empty($result->id) || empty($result->link)) {
+            echo 'ERR: '. sprintf('خطا هنگام ایجاد تراکنش. کد خطا: %s', $http_status);
+
+            return false;
+        } else {
+            $form['action'] = $result->link;
+            $form['method'] = 'GET';
+        }
+
+        return $form;
     }
 
     /**
