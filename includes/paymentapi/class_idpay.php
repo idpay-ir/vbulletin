@@ -66,13 +66,14 @@ class vB_PaidSubscriptionMethod_idpay extends vB_PaidSubscriptionMethod
         curl_close($ch);
 
         if ($http_status != 201 || empty($result) || empty($result->id) || empty($result->link)) {
-            echo'ERR: '. sprintf('خطا هنگام ایجاد تراکنش. کد خطا: %s', $http_status);
+            echo 'ERR: '. sprintf('خطا هنگام ایجاد تراکنش. کد خطا: %s', $http_status);
 
             return false;
         } else {
             $form['action'] = $result->link;
             $form['method'] = 'GET';
         }
+
         return $form;
     }
 
